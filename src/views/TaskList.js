@@ -7,6 +7,7 @@ import {
   FlatList,
   Platform,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import todayImage from '../../assets/imgs/today.jpg';
 import commonStyles from '../commonStyles';
@@ -70,6 +71,23 @@ export default class TaskList extends Component {
     this.filterTasks();
   }
 
+  addTask = newTask => {
+    if (!newTask.desc || !newTask.desc.trim()) {
+      Alert.alert('Dados Inválidos', 'Descrição nao informada!');
+      return;
+    }
+
+    const tasks = [...this.state.tasks];
+    tasks.push({
+      id: Math.random(),
+      desc: newTask.desc,
+      estimatedAt: newTask.date,
+      doneAt: null,
+    });
+
+    this.setState({tasks, showAddTask: false}, this.filterTasks);
+  };
+
   render() {
     const today = moment()
       .locale('pt-br')
@@ -80,6 +98,7 @@ export default class TaskList extends Component {
         <AddTask
           isVisible={this.state.showAddTask}
           onCancel={() => this.setState({showAddTask: false})}
+          onSave={this.addTask}
         />
         <ImageBackground source={todayImage} style={styles.background}>
           <View style={styles.iconBar}>

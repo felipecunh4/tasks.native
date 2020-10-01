@@ -7,13 +7,55 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  Platform,
 } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import commonStyles from '../commonStyles';
+import moment from 'moment';
+import 'moment/locale/pt-br';
 
-const initalState = {desc: ''};
+const initalState = {desc: '', date: new Date(), showDatePicker: false};
 
 export default class AddTask extends Component {
   state = {...initalState};
+
+  getDateTimePicker = () => {
+    let datePicker = (
+      <DateTimePicker
+        value={this.state.date}
+        onChange={(_, date) => this.setState({date, showDatePicker: false})}
+        mode="date"
+      />
+    );
+
+    const dateString = moment(this.state.date)
+      .locale('pt-br')
+      .format('ddd, D [de] MMMM [de] YYYY');
+
+    if (Platform.OS === 'android') {
+      datePicker = (
+        <View>
+          <TouchableOpacity
+            onPress={() => this.setState({showDatePicker: true})}>
+            <Text style={styles.date}>{dateString}</Text>
+          </TouchableOpacity>
+          {this.state.showDatePicker && datePicker}
+        </View>
+      );
+    }
+
+    return datePicker;
+  };
+
+  save = () => {
+    const newTask = {
+      desc: this.state.desc,
+      date: this.state.date,
+    };
+
+    this.props.onSave && this.props.onSave(newTask);
+    this.setState({...initalState});
+  };
 
   render() {
     return (
@@ -33,11 +75,12 @@ export default class AddTask extends Component {
             value={this.state.desc}
             onChangeText={desc => this.setState({desc})}
           />
+          {this.getDateTimePicker()}
           <View style={styles.buttons}>
             <TouchableOpacity onPress={this.props.onCancel}>
               <Text style={styles.button}>Cancelar</Text>
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={this.save}>
               <Text style={styles.button}>Salvar</Text>
             </TouchableOpacity>
           </View>
@@ -83,5 +126,10 @@ const styles = StyleSheet.create({
     margin: 20,
     marginRight: 30,
     color: commonStyles.colors.today,
+  },
+  date: {
+    fontFamily: commonStyles.fontFamily,
+    fontSize: 20,
+    marginLeft: 15,
   },
 });
