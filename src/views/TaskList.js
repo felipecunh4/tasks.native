@@ -9,33 +9,27 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import todayImage from '../../assets/imgs/today.jpg';
-import commonStyles from '../commonStyles';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import AsyncStorage from '@react-native-community/async-storage';
 import moment from 'moment';
 import 'moment/locale/pt-br';
+
 import Task from '../components/Task';
-import Icon from 'react-native-vector-icons/FontAwesome';
 import AddTask from './AddTask';
+
+import todayImage from '../../assets/imgs/today.jpg';
+import commonStyles from '../commonStyles';
+
+const initialState = {
+  visibleTasks: [],
+  showAddTask: false,
+  showDoneTasks: true,
+  tasks: [],
+};
 
 export default class TaskList extends Component {
   state = {
-    visibleTasks: [],
-    showAddTask: false,
-    showDoneTasks: true,
-    tasks: [
-      {
-        id: Math.random(),
-        desc: 'Comprar Livro',
-        estimatedAt: new Date(),
-        doneAt: new Date(),
-      },
-      {
-        id: Math.random(),
-        desc: 'Ler Livro',
-        estimatedAt: new Date(),
-        doneAt: null,
-      },
-    ],
+    ...initialState,
   };
 
   filterTasks = () => {
@@ -49,6 +43,7 @@ export default class TaskList extends Component {
     }
 
     this.setState({visibleTasks});
+    AsyncStorage.setItem('tasksState', JSON.stringify(this.state));
   };
 
   toggleTask = taskId => {
@@ -67,9 +62,13 @@ export default class TaskList extends Component {
     this.setState({showDoneTasks: !this.state.showDoneTasks}, this.filterTasks);
   };
 
-  componentDidMount() {
-    this.filterTasks();
-  }
+  componentDidMount = async () => {
+    const stateString = await AsyncStorage.getItem('tasksState');
+    const state = JSON.parse(stateString) || initialState;
+    // this.filterTasks();
+
+    this.setState(state, this.filterTasks);
+  };
 
   addTask = newTask => {
     if (!newTask.desc || !newTask.desc.trim()) {
