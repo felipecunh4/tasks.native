@@ -1,8 +1,10 @@
 import React from 'react';
+import {createAppContainer, createSwitchNavigator} from 'react-navigation';
+import {createDrawerNavigator} from 'react-navigation-drawer';
+
 import Auth from './views/Auth';
 import TaskList from './views/TaskList';
-import {createSwitchNavigator, createAppContainer} from 'react-navigation';
-import {createDrawerNavigator} from 'react-navigation-drawer';
+import AuthOrApp from './views/AuthOrApp';
 import Menu from './views/Menu';
 import commonStyles from './commonStyles';
 
@@ -32,9 +34,9 @@ const menuRoutes = {
   },
   Tomorrow: {
     name: 'Tomorrow',
-    screen: props => <TaskList title="Amanha" daysAhead={1} {...props} />,
+    screen: props => <TaskList title="Amanhã" daysAhead={1} {...props} />,
     navigationOptions: {
-      title: 'Amanha',
+      title: 'Amanhã',
     },
   },
   Week: {
@@ -46,9 +48,9 @@ const menuRoutes = {
   },
   Month: {
     name: 'Month',
-    screen: props => <TaskList title="Mes" daysAhead={30} {...props} />,
+    screen: props => <TaskList title="Mês" daysAhead={30} {...props} />,
     navigationOptions: {
-      title: 'Mes',
+      title: 'Mês',
     },
   },
 };
@@ -56,7 +58,14 @@ const menuRoutes = {
 const menuNavigator = createDrawerNavigator(menuRoutes, menuConfig);
 
 const mainRoutes = {
-  Auth: {name: 'Auth', screen: Auth},
+  AuthOrApp: {
+    name: 'AuthOrApp',
+    screen: AuthOrApp,
+  },
+  Auth: {
+    name: 'Auth',
+    screen: Auth,
+  },
   Home: {
     name: 'Home',
     screen: menuNavigator,
@@ -64,7 +73,7 @@ const mainRoutes = {
 };
 
 const mainNavigator = createSwitchNavigator(mainRoutes, {
-  initialRouteName: 'Auth',
+  initialRouteName: 'AuthOrApp',
 });
 
 export default createAppContainer(mainNavigator);

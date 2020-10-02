@@ -14,6 +14,7 @@ import commonStyles from '../commonStyles';
 import AuthInput from '../components/AuthInput';
 import {showError, server, showSuccess} from '../common';
 import axios from 'axios';
+import AsyncStorage from '@react-native-community/async-storage';
 
 const initialState = {
   name: '',
@@ -59,6 +60,7 @@ export default class Auth extends Component {
         password: this.state.password,
       });
 
+      AsyncStorage.setItem('userData', JSON.stringify(res.data));
       axios.defaults.headers.common['Authorization'] = `bearer ${
         res.data.token
       }`;
