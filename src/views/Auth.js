@@ -12,21 +12,60 @@ import {
 import backgroundImage from '../../assets/imgs/login.jpg';
 import commonStyles from '../commonStyles';
 import AuthInput from '../components/AuthInput';
+import {showError, server, showSuccess} from '../common';
+import axios from 'axios';
+
+const initialState = {
+  name: '',
+  email: '',
+  password: '',
+  confirmPasword: '',
+  stageNew: false,
+};
 
 export default class Auth extends Component {
   state = {
-    name: '',
-    email: '',
-    password: '',
-    confirmPasword: '',
-    stageNew: false,
+    ...initialState,
   };
 
   signInOrSignUp = () => {
     if (this.state.stageNew) {
-      Alert.alert('Registrado', 'Registrado');
+      this.signUp();
     } else {
-      Alert.alert('Entrou', 'Entrou');
+      this.singIn();
+    }
+  };
+
+  signUp = async () => {
+    try {
+      await axios.post(`${server}/signup`, {
+        name: this.state.name,
+        email: this.state.email,
+        password: this.state.password,
+        confirmPasword: this.state.confirmPasword,
+      });
+
+      showSuccess('Usuario cadastrado!');
+      this.setState({...initialState});
+    } catch (err) {
+      showError(e);
+    }
+  };
+
+  singIn = async () => {
+    try {
+      const res = await axios.post(`${server}/signin`, {
+        email: this.state.email,
+        password: this.state.password,
+      });
+
+      axios.defaults.headers.common['Authorization'] = `bearer ${
+        res.data.token
+      }`;
+
+      this.props.navigation.navigate('Home');
+    } catch (err) {
+      showError(err);
     }
   };
 
@@ -72,7 +111,7 @@ export default class Auth extends Component {
               onChangeText={confirmPasword => this.setState({confirmPasword})}
             />
           )}
-          <TouchableOpacity>
+          <TouchableOpacity onPress={this.signInOrSignUp}>
             <View style={styles.button}>
               <Text style={styles.buttonText}>
                 {this.state.stageNew ? 'Registrar' : 'Entrar'}
