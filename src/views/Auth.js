@@ -63,7 +63,7 @@ export default class Auth extends Component {
         res.data.token
       }`;
 
-      this.props.navigation.navigate('Home');
+      this.props.navigation.navigate('Home', res.data);
     } catch (err) {
       showError(err);
     }
